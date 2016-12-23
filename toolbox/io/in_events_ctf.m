@@ -128,6 +128,31 @@ if (length(sFile.epochs) > 1)
     end
 end
 
+% Import bad.segments
+%% SD 12/12/2016
+[PATHSTR,~,~] = fileparts(EventFile);
+BadsegmentsFile=fullfile(PATHSTR,'bad.segments');
+
+if exist(BadsegmentsFile,'file')==2
+    badsegment=load(BadsegmentsFile);
+    if size(badsegment,1)==0
+        disp(['No badsegments : ' PATHSTR ]);
+    else
+        iEvt = length(events) + 1;
+        list_epochbad=badsegment(:,1)';
+        list_timebad=[badsegment(:,2)';badsegment(:,3)'];
+        
+        events(iEvt)=struct('label','BAD',...
+            'color',[1,0,0],...
+            'epochs',list_epochbad,...
+            'samples',round(list_timebad .* sFile.prop.sfreq),...
+            'times',list_timebad,...
+            'reactTimes',[],...
+            'select',1);
+    end
+end
+%% end SD 12/12/2016
+
 % Convert to CTF-CONTINUOUS if necessary
 if ~isempty(events) && strcmpi(sFile.format, 'CTF-CONTINUOUS')
     sFile = process_ctf_convert('Compute', sFile, 'epoch');
